@@ -52,6 +52,10 @@ export function removeCartLine(index: number) {
   return cart;
 }
 
+export function clearCart() {
+  write<CartLine[]>(CART_KEY, []);
+}
+
 export function getCompareIds(): string[] {
   return read<string[]>(COMPARE_KEY, []);
 }
