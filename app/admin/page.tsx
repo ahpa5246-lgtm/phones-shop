@@ -10,7 +10,7 @@ export default async function AdminDashboard() {
     prisma.product.count(),
     prisma.order.count(),
     prisma.user.count({ where: { role: 'CUSTOMER' } }),
-    prisma.inventory.aggregate({ _sum: { quantity: true } }),
+    prisma.productVariant.aggregate({ _sum: { stock: true } }),
   ]);
 
   const recentOrders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' }, take: 8 });
@@ -22,9 +22,9 @@ export default async function AdminDashboard() {
         <article className="metric-card"><span>Products</span><strong>{products}</strong></article>
         <article className="metric-card"><span>Orders</span><strong>{orders}</strong></article>
         <article className="metric-card"><span>Customers</span><strong>{customers}</strong></article>
-        <article className="metric-card"><span>Units in inventory</span><strong>{inventory._sum.quantity ?? 0}</strong></article>
+        <article className="metric-card"><span>Units in inventory</span><strong>{inventory._sum.stock ?? 0}</strong></article>
       </section>
-      <section className="panel admin-table-wrap"><div className="panel-title"><h2>Recent orders</h2><a href="/admin/orders">Manage all</a></div><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Total</th></tr></thead><tbody>{recentOrders.map(order => <tr key={order.id}><td>#{order.orderNumber}</td><td>{order.customerName}</td><td>{order.status}</td><td>{order.total} IQD</td></tr>)}</tbody></table></section>
+      <section className="panel admin-table-wrap"><div className="panel-title"><h2>Recent orders</h2><a href="/admin/orders">Manage all</a></div><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Total</th></tr></thead><tbody>{recentOrders.map(order => <tr key={order.id}><td>#{order.orderNumber}</td><td>{order.customerName}</td><td>{order.status}</td><td>{order.total.toString()} IQD</td></tr>)}</tbody></table></section>
     </main>
   );
 }
