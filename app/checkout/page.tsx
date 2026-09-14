@@ -10,6 +10,10 @@ const governorates = ['Baghdad','Basra','Nineveh','Erbil','Sulaymaniyah','Duhok'
 
 type OrderResult = { orderNumber: string; total: string; status: string };
 
+function legacyProduct(line: CartLine) {
+  return demoProducts.find(item => item.id === line.productId || item.slug === line.productId || item.slug === line.slug);
+}
+
 export default function CheckoutPage() {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [result, setResult] = useState<OrderResult | null>(null);
@@ -18,8 +22,8 @@ export default function CheckoutPage() {
   useEffect(() => setCart(getCart()), []);
 
   const subtotal = useMemo(() => cart.reduce((sum, line) => {
-    const product = demoProducts.find((item) => item.id === line.productId);
-    return sum + (product?.price ?? 0) * line.quantity;
+    const product = legacyProduct(line);
+    return sum + (line.price ?? product?.price ?? 0) * line.quantity;
   }, 0), [cart]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -30,9 +34,10 @@ export default function CheckoutPage() {
     const payment = String(form.get('payment') || 'CASH_ON_DELIVERY');
     const fulfillment = payment === 'STORE_PICKUP' ? 'PICKUP' : 'DELIVERY';
     const items = cart.map(line => {
-      const product = demoProducts.find(item => item.id === line.productId);
-      return product ? { slug: product.slug, quantity: line.quantity, storage: line.storage, color: line.color } : null;
-    }).filter(Boolean);
+      const product = legacyProduct(line);
+      const slug = line.slug || product?.slug || line.productId;
+      return { slug, quantity: line.quantity, storage: line.storage, color: line.color };
+    });
 
     const response = await fetch('/api/orders', {
       method: 'POST',
@@ -73,7 +78,7 @@ export default function CheckoutPage() {
             <label className="payment-option"><input type="radio" name="payment" value="CASH_ON_DELIVERY" defaultChecked/> <span><strong>Cash on Delivery</strong><br/>Pay when the order arrives.</span></label>
             <label className="payment-option"><input type="radio" name="payment" value="STORE_PICKUP"/> <span><strong>Store Pickup</strong><br/>Reserve and collect from a configured branch.</span></label>
           </div>
-          <div className="checkout-notice">Demo catalog data is being used, but successful orders are now written to PostgreSQL. No card payment is simulated or claimed.</div>
+          <div className="checkout-notice">The visible subtotal is an estimate from the saved cart. The server re-checks the current PostgreSQL price and stock before creating the order. No card payment is simulated or claimed.</div>
           {error && <p className="form-error">{error}</p>}
           <button className="pill lime checkout-button" style={{marginTop:18}} disabled={!cart.length || loading}>{loading ? 'Placing order…' : 'Place order'}</button>
         </form>
