@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CheckCircle2, ShieldCheck, Star, Truck } from 'lucide-react';
 import ProductActions from '@/components/product-actions';
+import WishlistButton from '@/components/wishlist-button';
+import RecentlyViewedTracker from '@/components/recently-viewed';
 import { formatIQD } from '@/lib/demo-data';
 import { getCatalogProduct } from '@/lib/catalog-data';
 
@@ -14,6 +16,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main>
+      <RecentlyViewedTracker slug={product.slug}/>
       <section className="shell product-detail">
         <div className="detail-gallery">
           <span className="badge">{product.badge ?? 'Smartphone'}</span>
@@ -29,7 +32,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="detail-price">{formatIQD(product.price)} {product.oldPrice && <span className="old">{formatIQD(product.oldPrice)}</span>}</p>
           <div className="variant-block"><strong>Storage</strong><div className="spec-row">{product.storage.map((item) => <span className="chip option-chip" key={item}>{item}</span>)}</div></div>
           <div className="variant-block"><strong>Colors</strong><div className="spec-row">{product.colors.map((item) => <span className="chip option-chip" key={item}>{item}</span>)}</div></div>
-          <ProductActions productId={product.slug} slug={product.slug} name={product.name} brand={product.brand} price={product.price} storage={product.storage[0]} color={product.colors[0]}/>
+          <div className="detail-actions-row"><ProductActions productId={product.slug} slug={product.slug} name={product.name} brand={product.brand} price={product.price} storage={product.storage[0]} color={product.colors[0]}/><WishlistButton slug={product.slug}/></div>
           <div className="purchase-trust">
             <div><CheckCircle2 size={18}/><span><strong>{product.stock} units</strong> currently available</span></div>
             <div><ShieldCheck size={18}/><span>Warranty policy is configurable by the store</span></div>
