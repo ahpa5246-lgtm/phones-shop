@@ -9,7 +9,6 @@ datasource db {
 
 enum UserRole { CUSTOMER ADMIN STAFF }
 enum OrderStatus { PENDING CONFIRMED PROCESSING READY_FOR_DELIVERY SHIPPED DELIVERED CANCELLED RETURNED }
-
 enum DiscountType { PERCENTAGE FIXED }
 
 model User {
@@ -151,26 +150,30 @@ model Review {
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  userId      String?
-  status      OrderStatus @default(PENDING)
-  customerName String
-  phone       String
-  email       String?
-  governorate String
-  city        String
-  address     String
-  landmark    String?
-  notes       String?
-  subtotal    Decimal     @db.Decimal(12,2)
-  discount    Decimal     @default(0) @db.Decimal(12,2)
-  shipping    Decimal     @default(0) @db.Decimal(12,2)
-  total       Decimal     @db.Decimal(12,2)
-  createdAt   DateTime    @default(now())
-  user        User?       @relation(fields:[userId], references:[id])
-  items       OrderItem[]
-  history     OrderStatusHistory[]
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  userId            String?
+  status            OrderStatus @default(PENDING)
+  customerName      String
+  phone             String
+  email             String?
+  governorate       String
+  city              String
+  address           String
+  landmark          String?
+  notes             String?
+  paymentMethod     String      @default("CASH_ON_DELIVERY")
+  fulfillmentMethod String      @default("DELIVERY")
+  subtotal          Decimal     @db.Decimal(12,2)
+  discount          Decimal     @default(0) @db.Decimal(12,2)
+  shipping          Decimal     @default(0) @db.Decimal(12,2)
+  total             Decimal     @db.Decimal(12,2)
+  createdAt         DateTime    @default(now())
+  user              User?       @relation(fields:[userId], references:[id])
+  items             OrderItem[]
+  history           OrderStatusHistory[]
   @@index([status, createdAt])
+  @@index([orderNumber])
 }
 
 model OrderItem {
