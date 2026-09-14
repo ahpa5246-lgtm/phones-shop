@@ -6,6 +6,18 @@ import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { demoProducts, formatIQD } from '@/lib/demo-data';
 import { getCart, removeCartLine, setCartQuantity, type CartLine } from '@/lib/browser-commerce';
 
+function resolveLine(line: CartLine) {
+  const demo = demoProducts.find(product => product.id === line.productId || product.slug === line.productId || product.slug === line.slug);
+  return {
+    slug: line.slug || demo?.slug || line.productId,
+    name: line.name || demo?.name || 'Store product',
+    brand: line.brand || demo?.brand || 'NOVA Mobile',
+    price: line.price ?? demo?.price ?? 0,
+    defaultStorage: demo?.storage[0],
+    defaultColor: demo?.colors[0],
+  };
+}
+
 export default function CartPage() {
   const [cart, setCart] = useState<CartLine[]>([]);
 
@@ -16,13 +28,8 @@ export default function CartPage() {
     return () => window.removeEventListener('nova-commerce-change', sync);
   }, []);
 
-  const lines = useMemo(() => cart.map((line, index) => ({
-    line,
-    index,
-    product: demoProducts.find((product) => product.id === line.productId)
-  })).filter((entry) => entry.product), [cart]);
-
-  const subtotal = lines.reduce((sum, entry) => sum + (entry.product?.price ?? 0) * entry.line.quantity, 0);
+  const lines = useMemo(() => cart.map((line, index) => ({ line, index, product: resolveLine(line) })), [cart]);
+  const subtotal = lines.reduce((sum, entry) => sum + entry.product.price * entry.line.quantity, 0);
 
   return (
     <main className="shell cart-page">
@@ -36,13 +43,13 @@ export default function CartPage() {
       ) : (
         <div className="cart-layout">
           <div className="cart-lines">
-            {lines.map(({ line, product, index }) => product && (
-              <article className="cart-line" key={`${product.id}-${index}`}>
+            {lines.map(({ line, product, index }) => (
+              <article className="cart-line" key={`${product.slug}-${index}`}>
                 <Link href={`/phones/${product.slug}`} className="cart-thumb"><div className="mini-phone"/></Link>
                 <div className="cart-info">
                   <span className="maker">{product.brand}</span>
                   <Link href={`/phones/${product.slug}`}><h2>{product.name}</h2></Link>
-                  <p>{line.storage ?? product.storage[0]} • {line.color ?? product.colors[0]}</p>
+                  <p>{line.storage ?? product.defaultStorage ?? 'Standard'} • {line.color ?? product.defaultColor ?? 'Default'}</p>
                   <strong>{formatIQD(product.price)}</strong>
                 </div>
                 <div className="quantity-control">
@@ -56,11 +63,11 @@ export default function CartPage() {
           </div>
           <aside className="order-summary">
             <span className="maker">Order summary</span>
-            <div><span>Subtotal</span><strong>{formatIQD(subtotal)}</strong></div>
+            <div><span>Estimated subtotal</span><strong>{formatIQD(subtotal)}</strong></div>
             <div><span>Delivery</span><span>Calculated at checkout</span></div>
-            <div className="summary-total"><span>Total</span><strong>{formatIQD(subtotal)}</strong></div>
+            <div className="summary-total"><span>Estimated total</span><strong>{formatIQD(subtotal)}</strong></div>
             <Link href="/checkout" className="pill lime checkout-button">Proceed to checkout</Link>
-            <p>Cash on Delivery / Store Pickup will be supported first. No fake card payment is presented.</p>
+            <p>The server re-checks current database pricing and stock before the order is created.</p>
           </aside>
         </div>
       )}
