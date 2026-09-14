@@ -21,7 +21,7 @@ export default async function AccountPage() {
       </section>
       <section className="account-grid">
         <article className="panel"><h2>Profile</h2><p><strong>Email</strong><br/>{user.email}</p><p><strong>Role</strong><br/>{user.role}</p></article>
-        <article className="panel"><h2>Recent orders</h2>{user.orders.length ? user.orders.map(order => <div className="order-row" key={order.id}><span>#{order.orderNumber}</span><strong>{order.status}</strong><span>{order.total} IQD</span></div>) : <p className="section-sub">No orders yet. Orders created at checkout will appear here.</p>}</article>
+        <article className="panel"><h2>Recent orders</h2>{user.orders.length ? user.orders.map(order => <div className="order-row" key={order.id}><span>#{order.orderNumber}</span><strong>{order.status}</strong><span>{order.total.toString()} IQD</span></div>) : <p className="section-sub">No orders yet. Orders created at checkout will appear here.</p>}</article>
       </section>
       {session.role === 'ADMIN' && <a className="pill primary" href="/admin">Open admin dashboard</a>}
     </main>
