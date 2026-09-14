@@ -22,12 +22,12 @@ export async function POST(request: Request) {
     data: {
       name: parsed.data.name.trim(),
       email,
-      passwordHash: hashPassword(parsed.data.password),
+      password: hashPassword(parsed.data.password),
       role: 'CUSTOMER',
     },
     select: { id: true, name: true, email: true, role: true },
   });
 
-  await createSession(user.id, user.role);
+  await createSession(user.id, user.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER');
   return NextResponse.json({ user }, { status: 201 });
 }
