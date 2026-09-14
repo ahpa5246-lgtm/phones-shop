@@ -33,7 +33,7 @@ export default function SiteHeader() {
         <div className="nav-actions">
           <Link className="icon-btn" href="/shop" aria-label="Search"><Search size={17}/><span className="label">Search</span></Link>
           <Link className="icon-btn counter-btn" href="/compare" aria-label="Compare"><GitCompareArrows size={17}/>{compareCount > 0 && <span className="count-badge">{compareCount}</span>}</Link>
-          <button className="icon-btn" aria-label="Account placeholder"><User size={17}/></button>
+          <Link className="icon-btn" href="/account" aria-label="Account"><User size={17}/></Link>
           <Link className="icon-btn counter-btn" href="/cart" aria-label="Cart"><ShoppingBag size={17}/>{cartCount > 0 && <span className="count-badge">{cartCount}</span>}</Link>
         </div>
       </div>
