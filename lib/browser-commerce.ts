@@ -1,6 +1,15 @@
 'use client';
 
-export type CartLine = { productId: string; quantity: number; storage?: string; color?: string };
+export type CartLine = {
+  productId: string;
+  slug?: string;
+  name?: string;
+  brand?: string;
+  price?: number;
+  quantity: number;
+  storage?: string;
+  color?: string;
+};
 
 const CART_KEY = 'nova-mobile-cart';
 const COMPARE_KEY = 'nova-mobile-compare';
@@ -24,14 +33,30 @@ export function getCart(): CartLine[] {
   return read<CartLine[]>(CART_KEY, []);
 }
 
-export function addToCart(productId: string, options?: { storage?: string; color?: string; quantity?: number }) {
+export function addToCart(productId: string, options?: { slug?: string; name?: string; brand?: string; price?: number; storage?: string; color?: string; quantity?: number }) {
   const cart = getCart();
   const storage = options?.storage;
   const color = options?.color;
   const quantity = options?.quantity ?? 1;
   const existing = cart.find((line) => line.productId === productId && line.storage === storage && line.color === color);
-  if (existing) existing.quantity += quantity;
-  else cart.push({ productId, quantity, storage, color });
+  if (existing) {
+    existing.quantity += quantity;
+    existing.slug = options?.slug || existing.slug;
+    existing.name = options?.name || existing.name;
+    existing.brand = options?.brand || existing.brand;
+    existing.price = options?.price ?? existing.price;
+  } else {
+    cart.push({
+      productId,
+      slug: options?.slug,
+      name: options?.name,
+      brand: options?.brand,
+      price: options?.price,
+      quantity,
+      storage,
+      color,
+    });
+  }
   write(CART_KEY, cart);
   return cart;
 }
