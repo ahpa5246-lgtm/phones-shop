@@ -11,10 +11,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'Invalid email or password.' }, { status: 400 });
 
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email.toLowerCase().trim() } });
-  if (!user?.passwordHash || !verifyPassword(parsed.data.password, user.passwordHash)) {
+  if (!user?.password || !verifyPassword(parsed.data.password, user.password)) {
     return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
   }
 
-  await createSession(user.id, user.role);
+  await createSession(user.id, user.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER');
   return NextResponse.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 }
