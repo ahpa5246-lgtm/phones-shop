@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { ArrowUpRight, Search, ShieldCheck, Truck } from 'lucide-react';
 import ProductActions from '@/components/product-actions';
-import { demoProducts, formatIQD } from '@/lib/demo-data';
+import { formatIQD } from '@/lib/demo-data';
+import { getCatalogProducts } from '@/lib/catalog-data';
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const featured = (await getCatalogProducts()).slice(0, 3);
+  const lowest = featured.length ? Math.min(...featured.map(product => product.price)) : 0;
+
   return (
     <main>
       <section className="hero">
@@ -20,7 +26,7 @@ export default function HomePage() {
           </div>
           <div className="hero-visual" aria-hidden="true">
             <div className="phone-stage"><div className="phone"/></div>
-            <div className="float-card fc-price"><strong>From 980,000 IQD</strong><span>Demo pricing • editable later</span></div>
+            <div className="float-card fc-price"><strong>{lowest ? `From ${formatIQD(lowest)}` : 'Catalog ready'}</strong><span>Database-backed pricing</span></div>
             <div className="float-card fc-warranty"><strong>Warranty-ready</strong><span>Configurable store policy</span></div>
           </div>
         </div>
@@ -30,11 +36,11 @@ export default function HomePage() {
         <div className="shell">
           <div className="section-head">
             <div><span className="eyebrow" style={{color:'var(--green-700)'}}>Curated selection</span><h2>Featured phones</h2></div>
-            <div><p className="section-sub">The products, prices and availability remain demo data so the company can replace them later without redesigning the interface.</p><Link href="/shop" className="pill">View full catalog <ArrowUpRight size={16}/></Link></div>
+            <div><p className="section-sub">Store products now come from PostgreSQL when configured, with demonstration data used only as a safe development fallback.</p><Link href="/shop" className="pill">View full catalog <ArrowUpRight size={16}/></Link></div>
           </div>
           <div className="products">
-            {demoProducts.slice(0,3).map((product) => (
-              <article className="product-card" key={product.id}>
+            {featured.map((product) => (
+              <article className="product-card" key={product.slug}>
                 <Link href={`/phones/${product.slug}`} className="product-image">
                   <span className="badge">{product.badge}</span>
                   <div className="mini-phone" aria-label={`${product.name} placeholder product visual`}/>
@@ -47,7 +53,7 @@ export default function HomePage() {
                     {product.storage.slice(0,2).map(storage => <span className="chip" key={storage}>{storage}</span>)}
                     <span className="chip">{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</span>
                   </div>
-                  <ProductActions productId={product.id} storage={product.storage[0]} color={product.colors[0]} compact/>
+                  <ProductActions productId={product.slug} slug={product.slug} name={product.name} brand={product.brand} price={product.price} storage={product.storage[0]} color={product.colors[0]} compact/>
                 </div>
               </article>
             ))}
@@ -64,7 +70,7 @@ export default function HomePage() {
             <div className="stats">
               <div className="stat"><strong>4</strong><span>phones max in comparison</span></div>
               <div className="stat"><strong>IQD</strong><span>native Iraqi pricing</span></div>
-              <div className="stat"><strong>Local</strong><span>cart persistence on this device</span></div>
+              <div className="stat"><strong>DB</strong><span>database-backed catalog</span></div>
             </div>
           </div>
           <div className="finder-list">
@@ -83,12 +89,12 @@ export default function HomePage() {
           <div className="products">
             <article className="product-card"><ShieldCheck size={28}/><h3>Warranty-ready</h3><p className="section-sub">Warranty details are modeled as configurable commercial data rather than hard-coded claims.</p></article>
             <article className="product-card"><Truck size={28}/><h3>Iraq checkout</h3><p className="section-sub">Governorate, city, detailed address, landmark, notes, Cash on Delivery and Store Pickup are represented in the customer flow.</p></article>
-            <article className="product-card"><Search size={28}/><h3>Real discovery flow</h3><p className="section-sub">Search, filtering, comparison and persistent cart behavior now connect the storefront pages.</p></article>
+            <article className="product-card"><Search size={28}/><h3>Real discovery flow</h3><p className="section-sub">Search, filtering, comparison and persistent cart behavior now connect to the live catalog architecture.</p></article>
           </div>
         </div>
       </section>
 
-      <footer className="shell footer"><strong>NOVA Mobile</strong><span>Demo company identity and commercial data — replace before production launch.</span></footer>
+      <footer className="shell footer"><strong>NOVA Mobile</strong><span>Demo company identity and commercial policies — replace before production launch.</span></footer>
     </main>
   );
 }
