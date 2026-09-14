@@ -2,15 +2,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CheckCircle2, ShieldCheck, Star, Truck } from 'lucide-react';
 import ProductActions from '@/components/product-actions';
-import { demoProducts, formatIQD, getProductBySlug } from '@/lib/demo-data';
+import { formatIQD } from '@/lib/demo-data';
+import { getCatalogProduct } from '@/lib/catalog-data';
 
-export function generateStaticParams() {
-  return demoProducts.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getCatalogProduct(slug);
   if (!product) notFound();
 
   return (
@@ -19,20 +18,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <div className="detail-gallery">
           <span className="badge">{product.badge ?? 'Smartphone'}</span>
           <div className="detail-phone" aria-label={`${product.name} demo product visual`}/>
-          <div className="gallery-note">Demo product visual • replace with real company photography later</div>
+          <div className="gallery-note">Temporary product visual • replace with the retailer's approved photography before launch</div>
         </div>
         <div className="detail-copy">
           <Link href="/shop" className="maker">← Back to smartphones</Link>
           <span className="maker">{product.brand}</span>
           <h1>{product.name}</h1>
-          <div className="rating"><Star size={16} fill="currentColor"/> {product.rating} <span>Demo rating</span></div>
+          <div className="rating"><Star size={16} fill="currentColor"/> {product.rating || 'New'} <span>{product.rating ? 'customer rating' : 'no approved reviews yet'}</span></div>
           <p className="detail-description">{product.description}</p>
           <p className="detail-price">{formatIQD(product.price)} {product.oldPrice && <span className="old">{formatIQD(product.oldPrice)}</span>}</p>
           <div className="variant-block"><strong>Storage</strong><div className="spec-row">{product.storage.map((item) => <span className="chip option-chip" key={item}>{item}</span>)}</div></div>
           <div className="variant-block"><strong>Colors</strong><div className="spec-row">{product.colors.map((item) => <span className="chip option-chip" key={item}>{item}</span>)}</div></div>
-          <ProductActions productId={product.id} storage={product.storage[0]} color={product.colors[0]}/>
+          <ProductActions productId={product.slug} slug={product.slug} name={product.name} brand={product.brand} price={product.price} storage={product.storage[0]} color={product.colors[0]}/>
           <div className="purchase-trust">
-            <div><CheckCircle2 size={18}/><span><strong>{product.stock} demo units</strong> currently available</span></div>
+            <div><CheckCircle2 size={18}/><span><strong>{product.stock} units</strong> currently available</span></div>
             <div><ShieldCheck size={18}/><span>Warranty policy is configurable by the store</span></div>
             <div><Truck size={18}/><span>Delivery flow prepared for Iraqi governorates</span></div>
           </div>
@@ -47,7 +46,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div><span>Display</span><strong>{product.display}</strong></div>
           <div><span>Battery</span><strong>{product.battery}</strong></div>
           <div><span>Camera</span><strong>{product.camera}</strong></div>
-          <div><span>Connectivity</span><strong>{product.connectivity.join(' • ')}</strong></div>
+          <div><span>Connectivity</span><strong>{product.connectivity.join(' • ') || 'Not specified'}</strong></div>
         </div>
         <div className="highlight-grid">{product.highlights.map((item) => <div key={item}><CheckCircle2 size={18}/><strong>{item}</strong></div>)}</div>
       </section>
