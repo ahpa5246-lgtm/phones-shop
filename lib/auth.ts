@@ -7,7 +7,12 @@ const MAX_AGE = 60 * 60 * 24 * 7;
 type SessionPayload = { userId: string; role: 'CUSTOMER' | 'ADMIN'; exp: number };
 
 function secret() {
-  return process.env.AUTH_SECRET || 'dev-only-change-me';
+  const configured = process.env.AUTH_SECRET;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('AUTH_SECRET is required in production.');
+  }
+  return 'development-only-secret-change-before-production';
 }
 
 function sign(value: string) {
@@ -38,12 +43,24 @@ function decode(token?: string | null): SessionPayload | null {
 export async function createSession(userId: string, role: 'CUSTOMER' | 'ADMIN') {
   const store = await cookies();
   const token = encode({ userId, role, exp: Date.now() + MAX_AGE * 1000 });
-  store.set(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: MAX_AGE });
+  store.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: MAX_AGE,
+  });
 }
 
 export async function clearSession() {
   const store = await cookies();
-  store.set(COOKIE_NAME, '', { httpOnly: true, path: '/', maxAge: 0 });
+  store.set(COOKIE_NAME, '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0,
+  });
 }
 
 export async function getSession() {
