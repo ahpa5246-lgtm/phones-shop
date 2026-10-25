@@ -1,5 +1,32 @@
 # Phones Shop
 
+## Download, setup and project overview
+
+A smartphone e-commerce prototype for an Iraqi retailer.
+
+Catalogue and cart; signed sessions; server-priced checkout; stock transactions; admin workflows.
+
+![Project workflow illustration](docs/project-overview.svg)
+
+[Download source ZIP](https://github.com/ahpa5246-lgtm/phones-shop/archive/refs/heads/main.zip) · [Changes and branches](https://github.com/ahpa5246-lgtm/phones-shop/branches) · [Verification notes](docs/QUALITY_REVIEW.md)
+
+The ZIP contains source code. Installation steps and external runtime requirements are listed below.
+
+```bash
+git clone https://github.com/ahpa5246-lgtm/phones-shop.git
+cd phones-shop
+```
+
+From the repository directory:
+
+```text
+npm install
+npm run dev
+```
+
+The diagram is a project illustration. Test results and runtime limitations are recorded in [the review](docs/QUALITY_REVIEW.md); it is not a production-readiness certification.
+
+
 Production-oriented smartphone e-commerce platform for an Iraqi retailer.
 
 ## Implemented now
@@ -27,7 +54,7 @@ Production-oriented smartphone e-commerce platform for an Iraqi retailer.
 
 ## Local setup
 
-1. Install Node.js 20+ and PostgreSQL.
+1. Install Node.js 24 LTS and PostgreSQL.
 2. Clone this repository.
 3. Run `npm install`.
 4. Copy `.env.example` to `.env`.
