@@ -16,11 +16,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Generate Prisma client
         run: npm run db:generate
+      - name: Password regressions
+        run: npm test
       - name: Typecheck
         run: npm run typecheck
       - name: Production build

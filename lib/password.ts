@@ -7,8 +7,8 @@ export function hashPassword(password: string) {
 }
 
 export function verifyPassword(password: string, stored: string) {
+  if (!/^[0-9a-f]{32}:[0-9a-f]{128}$/.test(stored)) return false;
   const [salt, hash] = stored.split(':');
-  if (!salt || !hash) return false;
   const candidate = scryptSync(password, salt, 64);
   const original = Buffer.from(hash, 'hex');
   return candidate.length === original.length && timingSafeEqual(candidate, original);
